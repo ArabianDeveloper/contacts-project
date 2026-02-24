@@ -95,7 +95,6 @@ def add_contact_to_label(service, contact_resource_name, group_resource_name):
     ).execute()
 
 
-
 def main():
     creds = get_credentials()
     service = build('people', 'v1', credentials=creds)
