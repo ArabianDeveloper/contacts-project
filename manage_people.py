@@ -64,7 +64,7 @@ def add_contact(service, first_name, last_name, phone=None, email=None):
 
     result = service.people().createContact(body=contact_body).execute()
 
-    print(f"✅ Contact {first_name} {last_name} created successfully")
+    # print(f"✅ Contact {first_name} {last_name} created successfully")
     return result.get("resourceName")
 
 
@@ -73,14 +73,14 @@ def get_or_create_label(service, label_name):
 
     for group in groups.get("contactGroups", []):
         if group.get("name") == label_name:
-            print(f"✅ Label {label_name} found")
+            # print(f"✅ Label {label_name} found")
             return group.get("resourceName")
 
     # إذا غير موجود → إنشاء label
     body = {"contactGroup": {"name": label_name}}
     result = service.contactGroups().create(body=body).execute()
 
-    print(f"✅ Label {label_name} created")
+    # print(f"✅ Label {label_name} created")
     return result.get("resourceName")
 
 
@@ -100,7 +100,7 @@ def main():
     service = build('people', 'v1', credentials=creds)
     sheets_service = build('sheets', 'v4', credentials=creds)
 
-    data = read_google_sheet(sheets_service, '1izkRQU7FdhiE2s0gyCaz2_PUbZxjnD5LngChUmlmsjI', 'Sheet1!A:G')
+    data = read_google_sheet(sheets_service, '1gXMz0Kj_t1FaoMyt2ygGjl9VTVfHuOHDzycycECefhQ', 'Sheet1!A:G')
     if data:
         print("\n--- Sheet Data ---")
         for index, row in enumerate(data):
@@ -116,7 +116,8 @@ def main():
             for label in contact_labels_list:
                 label_id = get_or_create_label(service, label.strip())
                 add_contact_to_label(service, contact_id, label_id)
-                print(f"✅ Contact {row[0]} {row[1]} {row[2]} added to label '{label.strip()}'")
+                
+            print(f"✅ Contact {row[0]} {row[1]} {row[2]} created successfuly and added to labels '{row[6]}'")
 
         print("------------------")
 
