@@ -32,10 +32,6 @@ def authenticate():
     return creds
 
 
-def create_chat_service(creds):
-    return build("chat", "v1", credentials=creds)
-
-
 def list_spaces(service):
     results = service.spaces().list().execute()
 
@@ -54,25 +50,125 @@ def list_spaces(service):
         print("-" * 30)
 
 
-def add_space(service, space_name):
-    space_body = {
-        "displayName": space_name,
-        "spaceType": "GROUP_CHAT"
+def create_google_chat_space(service, space_title):
+
+    # إعداد تفاصيل الـ Space الجديد
+    space_details = {
+        "spaceType": "SPACE",           # لتحديد أنها غرفة دردشة (وليس محادثة فردية)
+        "displayName": space_title, # اسم الـ Space الذي سيظهر لك
+        "spaceDetails": {
+            "description": "هذه المساحة مخصصة للإشعارات التلقائية من بايثون"
+        }
     }
 
     try:
-        created_space = service.spaces().create(body=space_body).execute()
-        print(f"✅ Space '{space_name}' created successfully!")
-        print("Space ID:", created_space.get("name"))
+        print("جاري إنشاء الـ Space الجديد...")
+        # إرسال طلب الإنشاء
+        new_space = service.spaces().create(body=space_details).execute()
+        
+        space_displayName = new_space.get('displayName') 
+        space_name = new_space.get('name')
+        print(f'new space created: {space_displayName} (ID: {space_name})')
+        
     except Exception as e:
-        print("❌ Error creating space:", e)
+        print(f"❌ Error creating space: {e}")
+
+
+def list_space_members(service, space_name):
+
+    try:
+        print(f"Listing members in space: {space_name}\n")
+        
+        # 2. إرسال طلب جلب الأعضاء
+        response = service.spaces().members().list(parent=space_name).execute()
+        memberships = response.get('memberships', [])
+        
+        if not memberships:
+            print("لا يوجد أعضاء في هذه المساحة.")
+            return
+
+        # 3. طباعة البيانات بشكل مرتب
+        print("-" * 45)
+        for index, membership in enumerate(memberships, start=1):
+            member_info = membership.get('member', {})
+            
+            # استخراج البيانات الأساسية للعضو
+            member_role = membership.get('role', 'UNKNOWN') # دور العضو (OWNER, MANAGER, MEMBER)
+            display_name = member_info.get('displayName', 'N/A') # الاسم المعروض للعضو
+            member_type = member_info.get('type', 'UNKNOWN') # هل هو إنسان (HUMAN) أم بوت (BOT)
+            member_id = member_info.get('name', 'N/A')     # الـ ID المستخدم في الحذف
+
+            print(f"👤 Member {index}:")
+            print(f"Role         : {member_role}")
+            print(f"Display Name : {display_name}")
+            print(f"Type         : {member_type}")
+            print(f"ID           : {member_id}")
+            print("-" * 45)
+            
+    except Exception as e:
+        print(f"Error while listing members: {e}")
+
+
+def add_user_to_space(service, space_name, user_email):
+
+    # 2. تجهيز بيانات العضو الجديد
+    # نستخدم الإيميل مسبوقاً بكلمة "users/" للتعريف به
+    membership_body = {
+        "member": {
+            "name": f"users/{user_email}",
+            "type": "HUMAN"
+        }
+    }
+
+    try:
+        print(f"Adding user {user_email} to space {space_name}...")
+        
+        # 3. إرسال طلب الإضافة
+        result = service.spaces().members().create(
+            parent=space_name,
+            body=membership_body
+        ).execute()
+        
+        print(f"✅ User {user_email} added successfully.")
+        
+    except Exception as e:
+        print(f"❌ Error while adding user: {e}")
+
+
+def remove_all_members(service, space_name):
+
+    try:
+        print(f"Getting list of members in space {space_name}...\n")
+        response = service.spaces().members().list(parent=space_name).execute()
+        memberships = response.get('memberships', [])
+        
+        if not memberships:
+            print("No members found in this space.")
+            return
+
+        for membership in memberships:
+            if membership.get('role') == 'ROLE_MANAGER' or membership.get('role') == 'ROLE_ASSISTANT_MANAGER':
+                continue # لا يحذف المشرفين
+            membership_id = membership.get('name')
+            service.spaces().members().delete(name=membership_id).execute()
+            print(f"✅ Successfully removed member: {membership_id}")
+            
+    except Exception as e:
+        print(f"❌ Error while removing members: {e}")
+
 
 
 def main():
     creds = authenticate()
-    service = create_chat_service(creds)
+    service = build("chat", "v1", credentials=creds)
+    SPACE_NAME = "spaces/AAQARJ368ao"
+    SPACE_TITLE = "team1"
+
     # list_spaces(service)
-    add_space(service, "My New Chat Space")
+    # create_google_chat_space(service, SPACE_TITLE)
+    # list_space_members(service, SPACE_NAME)
+    # add_user_to_space(service, SPACE_NAME, "s144209@student.squ.edu.om")
+    # remove_all_members(service, SPACE_NAME)
 
 
 if __name__ == "__main__":
