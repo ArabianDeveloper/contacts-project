@@ -59,6 +59,7 @@ def add_contact(service, first_name, last_name, phone=None, email=None):
     print("✅ Contact created successfully")
     return result.get("resourceName")
 
+
 def get_or_create_label(service, label_name):
     groups = service.contactGroups().list(pageSize=200).execute()
 
