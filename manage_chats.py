@@ -41,13 +41,15 @@ def list_spaces(service):
         print("❌ No spaces found")
         return
 
-    print("✅ Your Google Chat spaces:\n")
+    # print("✅ Your Google Chat spaces:\n")
 
-    for i, space in enumerate(spaces, start=1):
-        print(f"{i}. Name:", space.get("displayName"))
-        print("   ID:", space.get("name"))
-        print("   Type:", space.get("spaceType"))
-        print("-" * 30)
+    # for i, space in enumerate(spaces, start=1):
+        # print(f"{i}. Name:", space.get("displayName"))
+        # print("   ID:", space.get("name"))
+        # print("   Type:", space.get("spaceType"))
+        # print("-" * 30)
+    
+    return spaces
 
 
 def create_google_chat_space(service, space_title):
@@ -129,8 +131,11 @@ def add_user_to_space(service, space_name, user_email):
             parent=space_name,
             body=membership_body
         ).execute()
+
+        member_name = result.get('name')
         
         # print(f"✅ User {user_email} added successfully.")
+        return member_name
         
     except Exception as e:
         print(f"❌ Error while adding user: {e}")
@@ -158,18 +163,29 @@ def remove_all_members(service, space_name):
         print(f"❌ Error while removing members: {e}")
 
 
+def remove_all_from_all(service):
+    try:
+        spaces = list_spaces(service)
+        for space in spaces:
+            space_name = space.get('name')
+            remove_all_members(service, space_name)
+    except Exception as e:
+        print(f"❌ Error while removing members from all spaces: {e}")
+
 
 def main():
     creds = authenticate()
     service = build("chat", "v1", credentials=creds)
     SPACE_NAME = "spaces/AAQARJ368ao"
     SPACE_TITLE = "team1"
+    MEMBER_EMAIL = "s140004@student.squ.edu.om"
 
     # list_spaces(service)
     # create_google_chat_space(service, SPACE_TITLE)
     # list_space_members(service, SPACE_NAME)
-    # add_user_to_space(service, SPACE_NAME, "s144209@student.squ.edu.om")
+    # add_user_to_space(service, SPACE_NAME, MEMBER_EMAIL)
     # remove_all_members(service, SPACE_NAME)
+    # remove_all_from_all(service)
 
 
 if __name__ == "__main__":

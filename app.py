@@ -11,7 +11,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 from manage_people import add_contact, get_or_create_label, add_contact_to_label, read_google_sheet
-from manage_chats import add_user_to_space, create_google_chat_space
+from manage_chats import add_user_to_space, create_google_chat_space, list_spaces
 
 
 SCOPES = [
@@ -44,7 +44,7 @@ def main():
     people_service = build('people', 'v1', credentials=creds)
     chat_service = build("chat", "v1", credentials=creds)
 
-    data = read_google_sheet(sheets_service, '1gXMz0Kj_t1FaoMyt2ygGjl9VTVfHuOHDzycycECefhQ', 'Sheet1!A:G')
+    data = read_google_sheet(sheets_service, '1gXMz0Kj_t1FaoMyt2ygGjl9VTVfHuOHDzycycECefhQ', 'Sheet1')
     if data:
         print("\n--- Sheet Data ---")
         for index, row in enumerate(data):
@@ -63,9 +63,16 @@ def main():
                 
             print(f"✅ Contact {row[0]} {row[1]} {row[2]} created successfuly and added to labels '{row[6]}'")
 
+            spaces = {}
+            for space in list_spaces(chat_service):
+                spaces[space.get("displayName")] = space.get("name")
+            
             for label in contact_labels_list:
-                space_id = create_google_chat_space(chat_service, label.strip())
-                add_user_to_space(chat_service, space_id, row[5])
+                if label.strip() not in spaces:
+                    Nspace_id = create_google_chat_space(chat_service, label.strip())
+                    add_user_to_space(chat_service, Nspace_id, row[5])
+                else:
+                    add_user_to_space(chat_service, spaces[label.strip()], row[5])
             
             print(f"✅ Contact {row[0]} {row[1]} {row[2]} added to Google Chat spaces for labels '{row[6]}'")
 

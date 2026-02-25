@@ -9,6 +9,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/contacts",
 ]
 
+
 def get_credentials():
     creds = None
     if os.path.exists('token.json'):
