@@ -62,13 +62,14 @@ def create_google_chat_space(service, space_title):
     }
 
     try:
-        print("جاري إنشاء الـ Space الجديد...")
+        # print("Creating new Google Chat space...")
         # إرسال طلب الإنشاء
         new_space = service.spaces().create(body=space_details).execute()
         
         space_displayName = new_space.get('displayName') 
         space_name = new_space.get('name')
-        print(f'new space created: {space_displayName} (ID: {space_name})')
+        # print(f'new space created: {space_displayName} (ID: {space_name})')
+        return space_name
         
     except Exception as e:
         print(f"❌ Error creating space: {e}")
@@ -121,7 +122,7 @@ def add_user_to_space(service, space_name, user_email):
     }
 
     try:
-        print(f"Adding user {user_email} to space {space_name}...")
+        # print(f"Adding user {user_email} to space {space_name}...")
         
         # 3. إرسال طلب الإضافة
         result = service.spaces().members().create(
@@ -129,7 +130,7 @@ def add_user_to_space(service, space_name, user_email):
             body=membership_body
         ).execute()
         
-        print(f"✅ User {user_email} added successfully.")
+        # print(f"✅ User {user_email} added successfully.")
         
     except Exception as e:
         print(f"❌ Error while adding user: {e}")
