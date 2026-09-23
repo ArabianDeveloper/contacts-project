@@ -44,24 +44,29 @@ def main():
     people_service = build('people', 'v1', credentials=creds)
     chat_service = build("chat", "v1", credentials=creds)
 
-    data = read_google_sheet(sheets_service, '1gXMz0Kj_t1FaoMyt2ygGjl9VTVfHuOHDzycycECefhQ', 'Sheet1')
+    data = read_google_sheet(sheets_service, '1xYciC-oNveiG-hosYDB5xO47tsuOn2SRnjeGdlYgjnY', 'Sheet1!B:M')
     if data:
         print("\n--- Sheet Data ---")
         for index, row in enumerate(data):
-            print(f"Row {index + 1}: {row}")
-            contact_id =add_contact(
+            # print(f"Row {index + 1}: {row[0].strip()}")
+
+            contact_id = add_contact(
                 people_service,
-                first_name=row[0] + " " + row[1] + " " + row[2],
-                last_name=row[3],
-                phone=row[4] if len(row) > 4 else None,
-                email=row[5] if len(row) > 5 else None
+                first_name=row[1] + " " + row[2] + " " + row[3],
+                last_name=row[4],
+                phone=row[5] if len(row) > 5 else None,
+                email=row[6] if len(row) > 6 else None
             )
-            contact_labels_list = row[6].split(",") if len(row) > 6 else []
+            contact_labels_list = row[11].split(",") if len(row) > 11 else []
             for label in contact_labels_list:
+                # print(f"Label: {label.strip()}")
                 label_id = get_or_create_label(people_service, label.strip())
                 add_contact_to_label(people_service, contact_id, label_id)
-                
-            print(f"✅ Contact {row[0]} {row[1]} {row[2]} created successfuly and added to labels '{row[6]}'")
+
+            label_id = get_or_create_label(people_service, row[0].strip())
+            add_contact_to_label(people_service, contact_id, label_id)
+            
+            print(f"{index + 1} -  ✅ Contact {row[1]} {row[2]} {row[3]} created successfully and added to labels '{row[11]}'")
 
             spaces = {}
             for space in list_spaces(chat_service):
@@ -70,11 +75,12 @@ def main():
             for label in contact_labels_list:
                 if label.strip() not in spaces:
                     Nspace_id = create_google_chat_space(chat_service, label.strip())
-                    add_user_to_space(chat_service, Nspace_id, row[5])
+                    add_user_to_space(chat_service, Nspace_id, row[6])
                 else:
-                    add_user_to_space(chat_service, spaces[label.strip()], row[5])
-            
-            print(f"✅ Contact {row[0]} {row[1]} {row[2]} added to Google Chat spaces for labels '{row[6]}'")
+                    add_user_to_space(chat_service, spaces[label.strip()], row[6])
+
+
+            print(f"{index + 1} - ✅ Contact {row[1]} {row[2]} {row[3]} added to Google Chat spaces for labels '{row[11]}'")
 
         print("Done processing all rows.")
 

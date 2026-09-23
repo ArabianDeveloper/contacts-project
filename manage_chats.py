@@ -70,7 +70,7 @@ def create_google_chat_space(service, space_title):
         
         space_displayName = new_space.get('displayName') 
         space_name = new_space.get('name')
-        # print(f'new space created: {space_displayName} (ID: {space_name})')
+        print(f'new space created: {space_displayName} (ID: {space_name})')
         return space_name
         
     except Exception as e:
