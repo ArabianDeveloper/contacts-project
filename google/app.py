@@ -10,8 +10,8 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-from manage_people import add_contact, get_or_create_label, add_contact_to_label, read_google_sheet
-from manage_chats import add_user_to_space, create_google_chat_space, list_spaces
+from google.manage_people import add_contact, get_or_create_label, add_contact_to_label, read_google_sheet
+from google.manage_chats import add_user_to_space, create_google_chat_space, list_spaces
 
 
 SCOPES = [
