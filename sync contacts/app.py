@@ -10,8 +10,8 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-from google.manage_people import add_contact, get_or_create_label, add_contact_to_label, read_google_sheet
-from google.manage_chats import add_user_to_space, create_google_chat_space, list_spaces
+from manage_people import add_contact, get_or_create_label, add_contact_to_label, read_google_sheet
+from manage_chats import add_user_to_space, create_google_chat_space, list_spaces
 
 
 SCOPES = [
@@ -44,7 +44,7 @@ def main():
     people_service = build('people', 'v1', credentials=creds)
     chat_service = build("chat", "v1", credentials=creds)
 
-    data = read_google_sheet(sheets_service, '1xYciC-oNveiG-hosYDB5xO47tsuOn2SRnjeGdlYgjnY', 'Sheet1!B:M')
+    data = read_google_sheet(sheets_service, '1xYciC-oNveiG-hosYDB5xO47tsuOn2SRnjeGdlYgjnY', 'Sheet1!B240:M')
     if data:
         print("\n--- Sheet Data ---")
         for index, row in enumerate(data):
